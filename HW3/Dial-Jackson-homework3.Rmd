@@ -3,6 +3,8 @@ title: "HW3"
 author: "Jackson Dial"
 date: '2023-02-08'
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r}
-
+library(tidyverse)
+library(pander)
+library(lubridate)
 ```
 
 # Data Curation/Data Mining Tasks
@@ -22,29 +26,120 @@ I used the CLI through gitbash to extract the tar file using the command:
 
 _tar -xvzf diabetes-data.tar.Z -C ._
 
-Once the data files were extracted, I used python to loop through each of the data files and concatenating them together into one data file. 
-
+Once the data files were extracted, I used python to loop through each of the data files and concatenating them together into one data file. See attached file "combine_data.py" file for code.
 
 
 ## Task 2
 
+```{r}
+dat <- read_csv("combined_data.csv")
+
+dat1 <- dat %>% 
+  select(2:5) %>% 
+  rename("date" = "0", "time" = "1", "code" = "2", "value" = "3") %>% 
+  separate(date, sep = "-", into = c("month", "day", "year"), remove = FALSE) %>% 
+  separate(time, sep = ":", into = c("hour", "minute"), remove = FALSE) %>% 
+  arrange(year, month, day, hour, minute) %>%
+  select(date, time, code, value)
+```
+
+```{r}
+sum(is.na(dat1$date));sum(is.na(dat1$time));sum(is.na(dat1$code));sum(is.na(dat1$value));sum(is.na(dat1$day_of_week))
+```
+
+
+
+
+__Submit this dataset^^__
+
 ## Task 3
+
+```{r}
+nrow(dat1)
+```
+The total number of measurements in the dataset is 29330.
 
 ## Task 4
 
+```{r}
+year_dat <- dat1 %>% separate(date, sep = "-", into = c("month", "day", "year"))
+year_dat %>% count(year) %>% pander()
+```
+
+
 ## Task 5
+
+
+```{r}
+dat1$day_of_week <- wday(mdy(dat1$date), label = TRUE, abbr = FALSE)
+dat1 %>% count(day_of_week) %>% pander()
+```
+
 
 ## Task 6
 
+```{r}
+dat1 %>% count(code) %>% pander()
+```
+
 ## Task 7
 
+There are a few missing values in the data.
+
+```{r}
+sum(is.na(dat1))
+```
+There are 106 missing values (cells) in the dataset. 
+
+```{r}
+sum(!complete.cases(dat1))
+```
+But only 73 rows with missing values.
+
 ## Task 8
+
+I think the impact of missing or incorrect data on visualizations can be easily overlooked. If there is an incorrect value that becomes an outlier, then it is typically easy to notice in a visualization. But, if there are missing values, they will typically not be presented at all in the visualization and if warnings in the code are ignored, it will be as if they do not exist. It is important to note missing values, but it is not always necessary to remove or to impute them.
+
+Invalid or incomplete data will have a negative impact on faceted search in that if a certain facet specification is missing, that item (or observation) will be excluded from the query results.
 
 # Data Visualization Tasks
 
 ## Task 1
 
+```{r}
+#change value to be a numeric variable
+dat1$value <- as.numeric(dat1$value)
+
+ggplot(dat1, aes(x = value))+
+  geom_histogram(stat = "count",fill = "dodgerblue")+
+  theme(panel.grid.minor = element_blank())
+```
+
+I needed to change the variable type of the value column to be numeric instead of a character. The plotting package also automatically removes missing values, so I did not need to remove them from the actual dataset.
+
 ## Task 2
+
+```{r}
+dat1 %>% 
+  group_by(day_of_week) %>% 
+  summarise(min = min(value, na.rm = TRUE), Q1 = quantile(value, .25, na.rm = TRUE), mean = mean(value, na.rm = TRUE), median = median(value, na.rm = TRUE), Q3 = quantile(value, .75, na.rm = TRUE), max = max(value, na.rm = TRUE)) %>% pander()
+
+
+ggplot(dat1, aes(x = day_of_week, y = value))+
+  geom_boxplot(aes(fill = day_of_week))+
+  stat_summary(fun = "mean", color = "red", shape = 4)+
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(angle = 30, vjust = .8),
+        axis.ticks = element_blank(),
+        plot.subtitle = element_text(color = "red"))+
+  labs(x = "Day of the Week",
+       y = "Blood Glucose Level",
+       fill = "Day of the Week",
+       title = "Blood Glucose Levels by Day of the Week",
+       subtitle = "Red X Shows Mean", color = "red")
+```
+
 
 ## Task 3
 
