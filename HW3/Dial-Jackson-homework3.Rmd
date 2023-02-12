@@ -140,7 +140,22 @@ ggplot(dat1, aes(x = day_of_week, y = value))+
        subtitle = "Red X Shows Mean", color = "red")
 ```
 
+_Need to finish this_
+
 
 ## Task 3
+
+```{r}
+ggplot(dat1,aes(x = code))+
+  geom_density(aes(fill = day_of_week))+
+  facet_wrap(~day_of_week, ncol = 2)+
+  theme(panel.grid.minor = element_blank(),
+        axis.ticks = element_blank())+
+  labs(fill = "Day of Week",
+       x = "Day of Week",
+       y = "Density",
+       title = "Faceted Distributions of Test Codes by Day of the Week")
+```
+
 
 ## Task 4
