@@ -124,7 +124,6 @@ dat1 %>%
   group_by(day_of_week) %>% 
   summarise(min = min(value, na.rm = TRUE), Q1 = quantile(value, .25, na.rm = TRUE), mean = mean(value, na.rm = TRUE), median = median(value, na.rm = TRUE), Q3 = quantile(value, .75, na.rm = TRUE), max = max(value, na.rm = TRUE)) %>% pander()
 
-
 ggplot(dat1, aes(x = day_of_week, y = value))+
   geom_boxplot(aes(fill = day_of_week))+
   stat_summary(fun = "mean", color = "red", shape = 4)+
@@ -137,10 +136,14 @@ ggplot(dat1, aes(x = day_of_week, y = value))+
        y = "Blood Glucose Level",
        fill = "Day of the Week",
        title = "Blood Glucose Levels by Day of the Week",
-       subtitle = "Red X Shows Mean", color = "red")
+       subtitle = "Red X Denotes Mean", color = "red")
 ```
 
-_Need to finish this_
+The data did need to be pre-processed a bit, but I did it inline with the table code in order to simplify my code and to not edit the originally read-in dataset. This pre-processing that was needed was to not include the NA or missing values in numeric calculations for the mean and 5-number summary.
+
+There is a slight difference in distribution by day, but it does not seem to be very significant from a visualization perspective. The slight trend that I am observing is the higher 3rd quartile for Saturday and Sunday. This is potentially related to these days being the weekend, and people tend to eat less healthy on the weekends, which I further hypothesize is related to blood glucose levels.
+
+A simple experimental design to allow me to test this hypothesis would be to group all variables by weekday or weekend (Saturday and Sunday), and run a simple t-test between means of the groups.
 
 
 ## Task 3
@@ -157,5 +160,47 @@ ggplot(dat1,aes(x = code))+
        title = "Faceted Distributions of Test Codes by Day of the Week")
 ```
 
+This plot shows that the distributions of test codes is approximately equal by day.
 
 ## Task 4
+
+```{r}
+top5 <- dat1 %>% count(code, sort = TRUE) %>% slice(1:5) %>% select(code)
+
+pTop5 <- dat1 %>% filter(code %in% top5$code) %>% 
+ggplot(aes(x = day_of_week, y = value))+
+  geom_boxplot(aes(fill = day_of_week))+
+  stat_summary(fun = "mean", color = "red", shape = 4)+
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(angle = 30, vjust = .8),
+        axis.ticks = element_blank(),
+        plot.subtitle = element_text(color = "red"))+
+  labs(x = "Day of the Week",
+       y = "Blood Glucose Level",
+       fill = "Day of the Week",
+       title = "Blood Glucose Levels by Day of the Week (Top 5 Codes Only)",
+       subtitle = "Red X Denotes Mean", color = "red")
+
+
+pNotTop5 <- dat1 %>% filter(!code %in% top5$code) %>% 
+ggplot(aes(x = day_of_week, y = value))+
+  geom_boxplot(aes(fill = day_of_week))+
+  stat_summary(fun = "mean", color = "red", shape = 4)+
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(angle = 30, vjust = .8),
+        axis.ticks = element_blank(),
+        plot.subtitle = element_text(color = "red"))+
+  labs(x = "Day of the Week",
+       y = "Blood Glucose Level",
+       fill = "Day of the Week",
+       title = "Blood Glucose Levels by Day of the Week (Top 5 Codes Excluded)",
+       subtitle = "Red X Denotes Mean", color = "red")
+
+pTop5
+pNotTop5
+
+```
+
+The distributions of blood glucose levels does appear to be slightly different between the top 5 codes and the not-top 5 codes. I would not change my hypothesis for either of the previous tasks. Though it appears Wednesday has a higher 3rd quartile of blood glucose level in the not-top 5 code plot, it does not seem to be significantly different from the rest of the weekdays.
