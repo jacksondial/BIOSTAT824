@@ -30,7 +30,7 @@ ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length))
 
 Q1. What do you see? Is it what you expect?
 
-I see a blank plotting grid.
+I see a blank plotting grid. It is what I expect because there is no geom added to it yet.
 
 You can store the plot in a variable, and work with it that way:
 
@@ -102,10 +102,11 @@ Not surprisingly, you can see clusters of hindfoot length and weight by species.
 Q8. Using visual inspection of Plot 7, create a table and fill it with the estimate the mean hindfoot length and weight for each species, the range of values for the hindfoot length and weight for each species, and visually estimate the greatest 'variance', scatter, or distance in standard deviation for the two measures for each species and write down that estimate. Since we can't directly estimate this kind of variance, rank each species for variance relative to the others. Or, if you prefer being more quantitative with your estimate you can do that too. 
 
 ```{r}
-
+my_species <- surveys_complete$species_id
+my_hindfoot_mean <- c(35, 36, 34, 49, 32, 30, 20, 27, 16, )
 ```
 
-
+__complete this__
  
 Q9. Now take the dataset and create a table with the range, mean, and standard deviation for the hindfoot and the weight for each species.
 
@@ -120,10 +121,10 @@ sum(is.na(surveys_complete)) #There are 59 na values to be aware of
 surveys_complete %>%
   group_by(species_id) %>%
   summarise(
-    hindfoot_range = range(hindfoot_length),
+    hindfoot_range = max(hindfoot_length) - min(hindfoot_length), #The range() function is creating duplicates of each species
     hindfoot_mean = mean(hindfoot_length),
     hindfoot_sd = sd(hindfoot_length),
-    weight_range = range(weight),
+    weight_range = max(weight) - min(weight),
     weight_mean = mean(weight),
     weight_sd = sd(weight)
   )
