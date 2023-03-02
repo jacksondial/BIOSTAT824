@@ -9,6 +9,11 @@ editor_options:
   chunk_output_type: console
 ---
 
+```{r}
+library(pander)
+```
+
+
 We are going to import the surveys_complete csv file from OSF. Google for it. Let me know if you can't find it. As of February 3rd, it was available at https://github.com/errear/r-bio.github.io/blob/master/data/surveys_complete.csv
 
 Set up a R project for Your Visualization Homework. Copy the csv file to the home directory for BIOS824 Homework. Create a directory called 'data' inside that directory and move the csv file there. 
@@ -90,7 +95,7 @@ I think the .05 or .03 alpha values make it the most understandable.
 Now lets add some color, based on species:
 Plot 7
 ```{r}
-survey_plot + geom_point(alpha = 0.5, aes(color = species_id))
+survey_plot + geom_point(alpha = 0.5, aes(color = species_id)) 
 ```
 
 Q7. What do think of this plot? Does it add additional value? 
@@ -102,12 +107,20 @@ Not surprisingly, you can see clusters of hindfoot length and weight by species.
 Q8. Using visual inspection of Plot 7, create a table and fill it with the estimate the mean hindfoot length and weight for each species, the range of values for the hindfoot length and weight for each species, and visually estimate the greatest 'variance', scatter, or distance in standard deviation for the two measures for each species and write down that estimate. Since we can't directly estimate this kind of variance, rank each species for variance relative to the others. Or, if you prefer being more quantitative with your estimate you can do that too. 
 
 ```{r}
-my_species <- surveys_complete$species_id
-my_hindfoot_mean <- c(35, 36, 34, 49, 32, 30, 20, 27, 16, )
+my_species <- sort(unique(surveys_complete$species_id))
+my_hindfoot_mean <- c(35, 36, 34, 49, 32, 30, 20, 27, 16, 22, 16, 18, 20, 20, 20, 21, 28, 26, 30, 28)
+my_weight_mean <- c(25, 26, 25, 30, 140, 30, 25, 25, 30, 20, 10, 25, 30, 20, 20, 29, 50, 70, 75, 35)
+my_hindfoot_min <- c(30, 30, 31, 40, 30, 25, 15, 20, 11, 21, 13, 14, 15, 17, 16, 20, 25, 23, 27, 23)
+my_weight_min <- c(20, 23, 22, 26, 100, 25, 20, 20, 24, 18, 8, 20, 15, 18, 16, 26, 40, 60, 45, 26)
+my_hindfoot_max <- c(50, 40, 40, 60, 40, 35, 25, 30, 20, 28, 20, 24, 23, 22, 26, 24, 31, 29, 34, 31)
+my_weight_max <- c(35, 32, 34, 39, 280, 40, 38, 32, 39, 28, 16, 32, 36, 27, 27, 34, 58, 84, 87, 42)
+
+my_df <- cbind.data.frame(my_species, my_hindfoot_min, my_hindfoot_mean, my_hindfoot_max, my_weight_min, my_weight_mean, my_weight_max)
+
+
+my_df %>% pander()
 ```
 
-__complete this__
- 
 Q9. Now take the dataset and create a table with the range, mean, and standard deviation for the hindfoot and the weight for each species.
 
 ```{r}
@@ -127,13 +140,16 @@ surveys_complete %>%
     weight_range = max(weight) - min(weight),
     weight_mean = mean(weight),
     weight_sd = sd(weight)
-  )
+  ) %>% 
+  pander()
 
 ```
 
 
 
 Q10. Now compare the numbers with the plot. Was your estimate by visual inspection aligned with the table, or do the measurements tell you a different story? If they aren't in the same order, which type(s) of measure (range, mean, variance) were you off in? Why do you think? 
+
+I was off on everything, and this is because there are so many colors on the plot I can hardly differentiate between the different species, and its just difficult to visually estimate averages and variances.
 
 Plot the weight by species_id:
 
@@ -151,6 +167,8 @@ ggplot(data = surveys_complete, mapping = aes(y = hindfoot_length, x = species_i
 
 Q11. Now look at your table based on the scatterplot in Plot 7 with Plot 8 and Plot 9. Is it easier to estimate with Plot 8 and 9? Why or why not?
 
+Yes, it is much easier to estimate to estimate this because it is only showing one continuous variable and each group is essentially on its own axis.
+
 Now experiment with other plot types to examine these data, and lets look at species vs weight. Start with a traditional boxplot.
 
 Plot 10.
@@ -160,6 +178,8 @@ ggplot(data = surveys_complete, mapping = aes(y = weight, x = species_id, color 
 ```
 
 Q12. Is this an easier plot to use to estimate the mean, range, and variance? 
+
+Yes.
 
 Now add the scatterplot back. 
 
@@ -171,6 +191,8 @@ Plot 11.
 
 Q13. Does this (Plot 11) give a better visualization than Plot 10?
 
+I would say it is about the same, but perhaps slightly worse because it just adds complexity.
+
 Now rather than straight points, add some fuzz or jitter to the points:
 
 Plot 12.
@@ -181,6 +203,7 @@ Plot 12.
 
 Q14. Does that make it clearer or less clear to see where the distributions are? Does it matter how many measurements a species has? Are more measurements easier to understand? Fewer measurements? 
 
+I would say slightly more clear. It does matter how many measurements a species has. With the given alpha value, more measurements is better.
 
 Another way of visualizing distributions is through teardrop plots, also called violin plots:
 
@@ -193,17 +216,19 @@ Plot 13.
 
 Q15. Is it easier or harder to see the distribution in Plot 13 than in Plot 7? If you had some systematic miscalculation in estimating from Plot 7, does plot 13 work better for you?
 
+Easier in plot 7, because the violin plots are so spread out and thin it is difficult to see any of the distribution.
+
 By default the width is scaled to the number of points in the distribution. We can set the width to be the width available, so the scaling is not based on the number of data points for each species.
 
 Plot 14.
 ```{r}
 ggplot(data = surveys_complete, mapping = aes(y = weight, x = species_id, color = species_id)) +
-     geom_violin(scale="width") 
+  geom_violin(scale = "width") 
 ```
 
 Q16. Is this plot easier or harder to interpret scatter, mean and range? 
 
-
+This is easier to interpret than the previous plot.
 
 Now add the jitter scatterplot back.
 
@@ -215,7 +240,7 @@ ggplot(data = surveys_complete, mapping = aes(y = weight, x = species_id, color 
 
 Q17. Is this clearer or more distracting? Is there a difference in clarity/interpretability depending on the number of data points? How many data points appears to be the sweet spot?
 
-
+I think this is both clearer and more distracting. The clarity does depend on the number of data points, for example PB species is rather difficult to see the underlying violin plot, but the OX is perfectly visible.
 
 It is also the case that many types of data are better plotted semi-log (one axis log scale) or log-log. This is very easy to do in ggplot. It is a simple addition to the plot:
 
@@ -228,7 +253,7 @@ ggplot(data = surveys_complete, mapping = aes(y = weight, x = species_id, color 
 
 Q18. Does this help you with a visual comparative analysis, or confuse things? Reflect on your results in Q8 and Q9. Would you get better estimates of range and standard deviation with a semi-log plot? Why or why not?
 
-
+I think this confuses things, but also does show some more underlying patterns as well as excentuate some within-group patterns.
 
 Next, plot hindfoot length:
 
@@ -240,7 +265,7 @@ ggplot(data = surveys_complete, mapping = aes(y = hindfoot_length, x = species_i
 
 Q19. How does the hindfoot length and the weight plot by species look to you? Are there different biological features/trends conclusions you can make? Which of the plots so far have you found the most informative? Why?
 
-
+It looks like the variable within groups remains somewhat constant, but between groups it varies of note. I think this and the violin plots have been the most informative. I don't think there is enough evidence to make any solid biological conclusions at this point just based off of plots.
 
 We will now take the scatterplot and change the weight axis to log scale
 
@@ -254,13 +279,15 @@ ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length)) 
 
 Q20. Is this easier to visualize than linearly scaled scatterplot? Why or why not? Loook back at Plot 7. Does Plot 7 or Plot 18 give you a better mental model for the data?
 
-
+I would say that plot 18 is easier to examine the model of the data.
 
 We will now group the data by year it was collected:
 
 
 ```{r}
-yearly_counts <- surveys_complete %>%
+surveys_complete2 <- read_csv("Data/surveys_complete2.csv")
+
+yearly_counts <- surveys_complete2 %>%
     count(year, genus)
 ```
 
@@ -283,6 +310,8 @@ ggplot(data = yearly_counts, mapping = aes(x = year, y = n, color = genus)) +
 
 Q21. What do you think of plot 20? Is it compact and still informative? 
 
+I think plot 20 is pretty good, certainly better than plot 19. I think it has room for improvement, however.
+
 Now examine each genus separately, by using the function 'facet_wrap' to separate genus information into smaller panes inside a larger plot:
 
 Plot 21.
@@ -294,12 +323,13 @@ ggplot(data = yearly_counts, mapping = aes(x = year, y = n, color = genus)) +
 
 Q22. Do you prefer the data in separate panes (plot 21), or all the data in a single plot (plot 20)?
 
+In this case, I prefer the data in a single plot (plot 20).
 
 Plot again, including the sex of the animal:
  
 Plot 22.
 ```{r}
-yearly_sex_counts <- surveys_complete %>%
+yearly_sex_counts <- surveys_complete2 %>%
      count(year, genus, sex)
 ggplot(data = yearly_sex_counts, mapping = aes(x = year, y = n, color = sex)) +
      geom_line() + facet_wrap(facets = vars(genus))
@@ -307,7 +337,7 @@ ggplot(data = yearly_sex_counts, mapping = aes(x = year, y = n, color = sex)) +
 
 Q23. Is this easier or harder to interpret than plot 21?                        
 
-
+It is about the same as plot 21, just has another level so I would say it is slightly less interpretable.
 
 Make another plot where we separate the sexes for each genus, and plot them next to each other:
 
@@ -319,6 +349,7 @@ ggplot(data = yearly_sex_counts, mapping = aes(x = year, y = n, color = sex)) +
 ```
 
 Q24. Is this easier or harder to interpret than plot 21 or plot 22? Why or why not?                     
+This plot is horrendous.Harder than plot 21 and plot 22. You can't read any of the x axis labels, and there are so many plots that the trends are squished causing incorrect perception.
 
 Flip the grid:
 
@@ -329,8 +360,11 @@ ggplot(data = yearly_sex_counts, mapping = aes(x = year, y = n, color = sex)) +
     facet_grid(rows=vars(genus), cols=vars(sex))
 ```
 
+Much better.
+
 Q25. Is separating the data better? either in rows or in columns? Or is it easier to understand as a two line plot?
 
+I think it is just easier to understand as a 2 line plot, the other options just added too much unnecessary complexity.
 
 Plot in rows vs columns:
 
@@ -347,6 +381,8 @@ ggplot(data = yearly_sex_counts, mapping = aes(x = year, y = n, color = sex)) +
 
 Q26. Any preference between plots 22 to 26? is one clearer than the other? If so, how is it clearer? 
 
+Plot 22 is much clearer, because of the setup of the facets. It again does not excentuate one of the axes causing perception distortion.
+
 The axes are hard to read. Lets try to do a little cleanup. You can apply a display theme or apply custom formatting.
 
 Plot 26.
@@ -358,6 +394,8 @@ ggplot(data = yearly_sex_counts, mapping = aes(x = year, y = n, color = sex)) +
 ```
 
 Q26. Do you like the plot with theme_bw, or the default theme better?
+
+I like the default theme better, but would still change some things.
 
 Lets continue to explore the data set, this time by species rather than genus, and by average weight for each year
 
@@ -374,7 +412,10 @@ ggplot(data = yearly_weight, mapping = aes(x=year, y=avg_weight)) +
 
 ```
 
+
 Q27. When you compare this set of plots (plot 27) with the previous plots of the number of animals surveyed per year by sex of the animal, in your opinion which plot is more informative? What makes it more informative? Is it also more intuitive?
+
+The previous plots are better, because the information is more succinctly displayed. I think also just the variable that is faceted on is more intuitive. Makes for a cleaner plot, and has color.
 
 Add sex to this plot:
 
@@ -393,8 +434,10 @@ ggplot(data = yearly_sex_weight, mapping = aes(x=year, y=avg_weight, color = sex
 
 Q28. Does this help? Which plot has more information? Which plot is more informative? Which plot is more intuitive? Which plot is easiest to understand? 
 
+This does not help, it just seems to add more complexity to the data which is unnecessary. The previous plot is easier to understand.
 
 Now add count to the array and replot. We will use the plyr::full_join to do that
+
 
 Plot 29.
 ```{r}
@@ -413,6 +456,23 @@ ggplot(data = yearly_sex_weight_count, mapping = aes(x=year)) +
 
 Q29. This is a bit messy. Adjust and record the plot so that you can color the M & F weights in different colors than the M&F survey counts, and include a legend with everything properly labeled. Include the code for your updated plot below:
 
+```{r}
+# weight <- data.frame(yearly_sex_weight_count$avg_weight) %>% mutate(group = "weight")
+# n <- data.frame(yearly_sex_weight_count$n) %>% mutate(group = "N")
+# value <- bind_rows(weight, n) %>% rename(value = yearly_sex_weight_count.avg_weight)
+# 
+# group <- c(rep("weight", length(weight)), rep("N", length(n)))
+# 
+# q29_dat <- yearly_sex_weight_count %>% select(year, sex, species_id) %>% rbind(yearly_sex_weight_count %>% select(year, sex, species_id)) %>% cbind(value)
+
+q29_dat <- pivot_longer(yearly_sex_weight_count, cols = c(avg_weight, n))
+
+ggplot(q29_dat, aes(x = year))+
+  geom_line(aes(y = value, col = interaction(sex, name)))+
+  facet_wrap(vars(species_id))+
+  labs(x = "Year", y = "Value", col = "Group")
+
+```
 
 
 Continuing with a simpler plot, relabel the axes and give the set of plots a title:
