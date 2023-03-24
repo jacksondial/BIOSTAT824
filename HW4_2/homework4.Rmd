@@ -211,7 +211,8 @@ To run the following script, you need to download the flare.csv file and bubbles
 See https://rstudio.github.io/r2d3/articles/gallery/bubbles/ and https://github.com/rstudio/r2d3/tree/master/vignettes/gallery/bubbles 
 
 ```{r}
-r2d3(data = read.csv("flare.csv"), width=400, height=400, d3_version = 4, script = "./js/bubbles.js")
+
+r2d3(data = read.csv("flare.csv"), width=400, height=400, d3_version = 4, script = "C:/Users/jacks/OneDrive/Desktop/DUKE_SPRING2023/824/BIOSTAT824/HW4_2/js/p3.js")
 ```
 
 
@@ -220,21 +221,29 @@ Question 7. Find an appropriate dataset and visualize it using a bubble plot. In
 Put your code below:
 
 ```{r}
+library(gapminder)
+gap_data <- gapminder %>% filter(year=="2007") %>% dplyr::select(-year)
 
+gap_data %>%
+  arrange(desc(pop)) %>%
+  mutate(country = factor(country, country)) %>%
+  ggplot(aes(x=gdpPercap, y=lifeExp, size=pop, color=continent)) +
+    geom_point(alpha=0.5) +
+    scale_size(range = c(.1, 24), name="Population (M)")
 ```
 
 Finally, we are going to graph this same data in a radial tree. This is also a graph representation. We are going to use the same data as in the bubble graph. https://rstudio.github.io/r2d3/articles/gallery/radialtree/ has the javascript and css files.
 
 ```{r}
-r2d3(data = read.csv("flare.csv"), d3_version = 4, script = "./js/radialtree.js")
-r2d3(data = read.csv("flare.csv"), d3_version = 4, script = "./js/radialtree.js", css = "./css/radialtree.css")
+r2d3(data = read.csv("flare.csv"), d3_version = 4, script = "js/radialtree.js")
+r2d3(data = read.csv("flare.csv"), d3_version = 4, script = "js/radialtree.js", css = "css/radialtree.css")
 ```
 
 This generates two different radialtree graphs. If they look identical, you may not have the css file in the right place for it to be loaded. 
 
 Question 8. What is the difference between the two graphs? Which one do you prefer? 
 
-
+The difference is mostly in the thickness of the radial lines. I prefer the one with thicker lines.
 
 Now lets build a cartogram, or map. Lets look just at the US. You will need to use code and files at:
 
@@ -245,14 +254,15 @@ https://gist.githubusercontent.com/mbostock/4090846/raw/us.json
 Building the cartogram is a lengthy process. It will take multiple seconds depending on the computer you run it on.  
 
 ```{r}
-r2d3(data = jsonlite::read_json("us.json"), d3_version = 3, dependencies = "./js/topojson.min.js", script = "./js/cartogram.js")
-r2d3(data = jsonlite::read_json("us.json"), d3_version = 3, dependencies = "./js/topojson.min.js", script = "./js/cartogram.js", css = "./css/cartogram.css")
+r2d3(data = jsonlite::read_json("us.json"), d3_version = 3, dependencies = "js/topojson.min.js", script = "js/cartogram.js")
+r2d3(data = jsonlite::read_json("us.json"), d3_version = 3, dependencies = "js/topojson.min.js", script = "js/cartogram.js", css = "css/cartogram.css")
 ```
 
 These two graphs should look different, assuming the css file is loaded. 
 
 Question 9. What are the differences between the css cartogram and the cartogram without the css file.
 
+The one with the css file shows the outlines of the states and they are grey.
 
 Question 10. Extra credit.  Take a look at https://observablehq.com/@d3/non-contiguous-cartogram The data for obesity is manually loaded into the r2d3 javascript file, but it is not changing the color of the states based on the obesity rates in each state. Can you fix the javascript to make it properly color the state? This will require javascript coding skill as well as troubleshooting. It may not be possible to fix, since the authors of the r2d3 example were unable to make it work, even with the d3 example available. 
 
